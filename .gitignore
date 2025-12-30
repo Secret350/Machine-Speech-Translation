@@ -1,0 +1,10 @@
+env/
+Build_model/Training_Data/
+Checkpoint/
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+*h5
+*.tf
+.idea/
