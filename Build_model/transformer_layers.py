@@ -1,5 +1,7 @@
 import tensorflow as tf
 import numpy as np
+from config import *
+from tensorflow.keras.layers import Dense, Layer, LayerNormalization,Dropout
 
 #Xay dung Positon Encoding
 
@@ -15,3 +17,121 @@ def position_encoding(position,d_model):
 
     pos_encoding = angle_rads[np.newaxis,...]
     return tf.cast(pos_encoding, dtype=tf.float32)
+
+#Xay dung multihead_attention
+def scales_dot_product_attention(q,k,v,mask):
+
+    dot_qk = tf.matmul(q,k,transpose_b=True)
+
+    dk = tf.cast(tf.shape(k)[-1],tf.float32)
+
+    scale_attention_logit = dot_qk/tf.sqrt(dk)
+
+    if mask is not None:
+        scale_attention_logit += (mask* -1e9)
+
+    softmax_attention = tf.nn.softmax(scale_attention_logit,axis=-1)
+
+    output = tf.matmul(softmax_attention,v)
+
+    return output , softmax_attention
+
+class MultiheadAttention(Layer):
+    def __init__(self,d_model,num_heads):
+        super(MultiheadAttention,self).__init__()
+        self.num_heads = num_heads
+        self.d_model = d_model
+        
+        assert d_model % num_heads == 0,"d_model phai bang #heads"
+        
+        self.depth = d_model//num_heads
+        self.wq = Dense(d_model)
+        self.wk = Dense(d_model)
+        self.wv = Dense(d_model)
+        
+        self.dense = Dense(d_model)
+        
+    def split_heads(self,x,batch_size):
+        x = tf.reshape(x,(batch_size,-1,self.num_heads,self.depth))
+
+        return tf.transpose(x, perm=[0,2,1,3])
+    def call(self, q, k, v, mask=None):
+        batch_size = BATCH_SIZE
+        q = self.wq(q)
+        k = self.wk(k)
+        v = self.wv(v)
+
+        q = self.split_heads(q,batch_size)
+        k = self.split_heads(k,batch_size)
+        v = self.split_heads(v,batch_size)
+
+        scaled_attention, attention_weight = scales_dot_product_attention(q,k,v,mask)
+        scaled_attention = tf.transpose(scaled_attention,perm=[0,2,1,3])
+
+        concat_attention = tf.reshape(scaled_attention,(batch_size,-1,self.d_model))
+        output = self.dense(concat_attention)
+
+        return output, attention_weight
+
+#Xay dung Feed Forward Neural Network
+def Feed_Forward_Neural_Network(d_model,dff):
+    return tf.keras.Sequential([
+        Dense(units=dff,activation="relu"),
+        Dense(units=d_model)
+    ])
+
+class EncoderLayer(Layer):
+    def __init__(self,d_model,num_heads,dff,dropout_rate=0.1):
+        super(EncoderLayer,self).__init__()
+        
+        #cac ham multiheadattention, add&norm, feedforwardneuralnetwork
+        self.MultiHead = MultiheadAttention(d_model,num_heads)
+        self.FFNN = Feed_Forward_Neural_Network(d_model,dff)
+        self.Add_Norm1 = LayerNormalization(epsilon=1e-6)
+        self.Add_Norm2 = LayerNormalization(epsilon=1e-6)
+
+        self.dropout1 = Dropout(dropout_rate)
+        self.dropout2 = Dropout(dropout_rate)
+    def call(self,x,training,mask):
+        #Xay dung cau truc block encoder multihead -> dropout -> add&norm1
+        attention_output,_ = self.MultiHead(x,x,x,mask)
+        attention_output = self.dropout1(attention_output,training=training)
+        encoder_output1 = self.Add_Norm1(x+attention_output)
+        # feedforwardneuralnetwork -> dropout -> add&norm -> encoder_output
+        ffnn_output = self.FFNN(encoder_output1)
+        ffnn_output = self.dropout2(ffnn_output,training=training)
+        out_encoder = self.Add_Norm2(encoder_output1+ffnn_output)
+        
+        return out_encoder
+
+#Xay dung block decoder
+class Decoder(Layer):
+    def __init__(self,d_model,num_heads, dff, dropout_rate=0.1):
+        super(Decoder, self).__init__()
+        
+        self.MultiHead1 = MultiheadAttention(d_model,num_heads)
+        self.MultiHead2 = MultiheadAttention(d_model,num_heads)
+        self.FFNN = Feed_Forward_Neural_Network(d_model,dff)
+
+        self.dropout1 = Dropout(dropout_rate)
+        self.dropout2 = Dropout(dropout_rate)
+        self.dropout3 = Dropout(dropout_rate)
+
+        self.Add_Norm1 = LayerNormalization(epsilon=1e-6)
+        self.Add_Norm2 = LayerNormalization(epsilon=1e-6)
+        self.Add_Norm3 = LayerNormalization(epsilon=1e-6)
+
+    def call(self,x,encoder_output,training,look_ahead_mask, padding_mask):
+        Attention1, attention_weight_block1= self.MultiHead1(x,x,x,look_ahead_mask)
+        Attention1 = self.dropout1(attention_weight_block1,training=training)
+        decoder_output1 = self.Add_Norm1(Attention1+x)
+
+        Attention2, attention_weight_block2 = self.MultiHead2(encoder_output,encoder_output,decoder_output1,padding_mask)
+        Attention2 = self.dropout2(Attention2,training=training)
+        decoder_output2 = self.Add_Norm2(Attention2+decoder_output1)
+
+        ffnn_output = self.FFNN(decoder_output2)
+        ffnn_output = self.dropout3(ffnn_output,training=training)
+        decoder_output3 = self.Add_Norm3(ffnn_output+decoder_output2)
+
+        return decoder_output3,attention_weight_block1,attention_weight_block2
