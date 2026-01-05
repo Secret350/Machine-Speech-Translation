@@ -1,6 +1,3 @@
-# src/config.py
-import os
-
 VOCAB_DIR = "./Training_Data/vocab"
 VOCAB_EN_FILE = VOCAB_DIR+"vocab_en.pkl"
 VOCAB_VI_FILE = VOCAB_DIR+"vocab_vi.pkl"
@@ -20,7 +17,7 @@ CLEAN_VI_FILE = PROCESSED_DIR+"/train.vi"
 # 4. Hyperparameters cho Model & Data
 VOCAB_SIZE = 20000
 MAX_LENGTH = 60
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 BUFFER_SIZE = 20000
 
 # 5. Token
@@ -28,8 +25,8 @@ START_TOKEN = "[start]"
 END_TOKEN = "[end]"
 
 #HYPER PARAMETER
-NUM_LAYERS = 6
-D_MODEL = 512
-DFF = 2048
+NUM_LAYERS = 4
+D_MODEL = 256
+DFF = 1024
 NUM_HEADS = 8
 DROPOUT_RATE = 0.1
