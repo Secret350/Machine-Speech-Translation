@@ -78,8 +78,8 @@ def get_dataset():
 
     datasets = tf.data.Dataset.zip((raw_en,raw_vi))
 
-    sample_en = raw_en.take(5000)
-    sample_vi = raw_vi.take(5000)
+    sample_en = raw_en.take(2000000)
+    sample_vi = raw_vi.take(2000000)
 
     vectorizer_en = create_vectorizer(sample_en,VOCAB_SIZE,MAX_LENGTH,VOCAB_EN_FILE)
     vectorizer_vi = create_vectorizer(sample_vi,VOCAB_SIZE,MAX_LENGTH,VOCAB_VI_FILE)

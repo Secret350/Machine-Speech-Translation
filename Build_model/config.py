@@ -15,14 +15,14 @@ CLEAN_EN_FILE = PROCESSED_DIR+"/train.en"
 CLEAN_VI_FILE = PROCESSED_DIR+"/train.vi"
 
 # 4. Hyperparameters cho Model & Data
-VOCAB_SIZE = 20000
+VOCAB_SIZE = 40000
 MAX_LENGTH = 60
-BATCH_SIZE = 256
+BATCH_SIZE = 128
 BUFFER_SIZE = 20000
 
 # 5. Token
-START_TOKEN = "[start]"
-END_TOKEN = "[end]"
+START_TOKEN = "<start>"
+END_TOKEN = "<end>"
 
 #HYPER PARAMETER
 NUM_LAYERS = 4

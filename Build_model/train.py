@@ -79,7 +79,7 @@ def accuracyfunc(y,pred):
 train_loss = tf.keras.metrics.Mean(name= "train_loss")
 train_accuracy = tf.keras.metrics.Mean(name= "train_accuracy")
 
-@tf.function #Toc do train se nhanh hon do no bien dich code python thanh do thi tinh
+@tf.function
 def train_step(inp,tar):
     tar_inp = tar[:,:-1]
     tar_y = tar[:,1:]
@@ -110,7 +110,7 @@ for epoch in range(epochs):
     train_accuracy.reset_state()
     for (batch,(inpepoch,tarepoch)) in enumerate(train_dataset):
         train_step(inp=inpepoch,tar=tarepoch)
-        if batch%50 == 0:
+        if batch%25 == 0:
             print(f"Epoch{epoch+1} Batch {batch} Loss {train_loss.result():.4f} Accuracy {train_accuracy.result():.4f}")
 
     checkpoint_path = checkpnt_manager.save()
