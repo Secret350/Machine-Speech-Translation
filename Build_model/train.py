@@ -3,16 +3,19 @@ import time
 import logging
 import os
 from tensorflow.keras import mixed_precision
+import config
+from translation_model import Transformer
+from learning_rate import ComputeLR
+from dataset import get_dataset,get_vocab_size
 
-# policy = mixed_precision.Policy('mixed_float16')
-# mixed_precision.set_global_policy(policy)
+policy = mixed_precision.Policy('mixed_float16')
+mixed_precision.set_global_policy(policy)
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
     try:
-        # Thiết kế để TF chỉ sử dụng lượng VRAM cần thiết
         for gpu in gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
         logical_gpus = tf.config.list_logical_devices('GPU')
@@ -23,20 +26,15 @@ if gpus:
 else:
     print(">>> CẢNH BÁO: Không tìm thấy GPU, hệ thống sẽ chạy trên CPU.")
 
-import config
-from translation_model import Transformer
-from learning_rate import ComputeLR
-from dataset import get_dataset,get_vocab_size
-
 #Lay data va dinh nghia mo hinh, setup mo hình
 train_dataset,vectorizer_en, vectorizer_vi = get_dataset()
-input_vocab_size = get_vocab_size(config.VOCAB_EN_FILE)
-target_vocab_size = get_vocab_size(config.VOCAB_VI_FILE)
+input_vocab_size = len(vectorizer_en.get_vocabulary())
+target_vocab_size = len(vectorizer_vi.get_vocabulary())
 
 with tf.device('/GPU:0' if gpus else '/CPU:0'):
     learning_rate = ComputeLR(config.D_MODEL)
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, beta_1=0.9,beta_2=0.98,epsilon= 1e-9,clipnorm=1.0)
-
+    optimizer = mixed_precision.LossScaleOptimizer(optimizer)
     transformer = Transformer(num_layers = config.NUM_LAYERS,d_model = config.D_MODEL,num_heads = config.NUM_HEADS,dff = config.DFF,input_vocab_size = input_vocab_size,target_vocab_size = target_vocab_size,dropout_rate = config.DROPOUT_RATE)
 
 #Tao va load checkpoints
@@ -93,8 +91,9 @@ def train_step(inp,tar):
     with tf.GradientTape() as tape:
         predictions, _ = transformer(inp=inp,tar=tar_inp, training=True)
         loss_tape = lossfunc(tar_y,predictions)
-
-    gradients = tape.gradient(loss_tape,transformer.trainable_variables)
+        scaled_loss = optimizer.get_scaled_loss(loss_tape)
+    scaled_gradients = tape.gradient(scaled_loss,transformer.trainable_variables)
+    gradients = optimizer.get_unscaled_gradients(scaled_gradients)
     optimizer.apply_gradients(zip(gradients,transformer.trainable_variables))
 
     batch_accuracy = accuracyfunc(tar_y,predictions)
@@ -110,10 +109,10 @@ for epoch in range(epochs):
     train_accuracy.reset_state()
     for (batch,(inpepoch,tarepoch)) in enumerate(train_dataset):
         train_step(inp=inpepoch,tar=tarepoch)
-        if batch%25 == 0:
+        if batch%100 == 0:
             print(f"Epoch{epoch+1} Batch {batch} Loss {train_loss.result():.4f} Accuracy {train_accuracy.result():.4f}")
 
     checkpoint_path = checkpnt_manager.save()
-    logging.info(f"Saving checkpoint for epoch {epoch+1}")
-    logging.info(f"Epoch {epoch+1} Loss {train_loss.result():.4f} Accuracy {train_accuracy.result():.4f}")
-    logging.info(f"Time taken for 1 epoch: {time.time()-start:.2f} secs\n")
+    print(f"Saving checkpoint for epoch {epoch+1}")
+    print(f"Epoch {epoch+1} Loss {train_loss.result():.4f} Accuracy {train_accuracy.result():.4f}")
+    print(f"Time taken for 1 epoch: {time.time()-start:.2f} secs\n")
