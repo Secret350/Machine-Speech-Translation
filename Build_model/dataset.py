@@ -4,11 +4,12 @@ import os
 import logging
 import pickle
 from collections import Counter
+import re
+import string
 
 #chuan hoa van ban
 def paragraph_standardization(text):
-    text = tf.strings.lower(text)
-    return text
+    return tf.strings.lower(text)
 
 
 def build_vocab_python(text_dataset, max_tokens):
@@ -19,8 +20,10 @@ def build_vocab_python(text_dataset, max_tokens):
         text = text.lower()
         tokens = text.split()
         vocab_counter.update(tokens)
-    most_common = vocab_counter.most_common(max_tokens - 2)
-    vocab_list = [word for word, count in most_common]
+    most_common = vocab_counter.most_common(max_tokens)
+    vocab_list = [word for word, count in most_common if word not in ["sostoken","eostoken"]]
+    vocab_list = vocab_list[:max_tokens-2]
+    vocab_list = ["sostoken","eostoken"] +vocab_list
     return vocab_list
 
 
@@ -44,7 +47,7 @@ def create_vectorizer(text_dataset, max_tokens, output_sequence_length, vocab_pa
             logging.warning(f"Could not load vocab file: {e}. Rebuilding...")
     vocab_list = build_vocab_python(text_dataset, max_tokens)
 
-    # Lưu vocab lại
+    # Lưu vocab_en_to_vi lại
     with open(vocab_path, "wb") as f:
         pickle.dump(vocab_list, f)
     logging.info(f"Saved {len(vocab_list)} vocabs in {vocab_path}")
@@ -78,8 +81,8 @@ def get_dataset():
 
     datasets = tf.data.Dataset.zip((raw_en,raw_vi))
 
-    sample_en = raw_en.take(2000000)
-    sample_vi = raw_vi.take(2000000)
+    sample_en = raw_en.take(1500000)
+    sample_vi = raw_vi.take(1500000)
 
     vectorizer_en = create_vectorizer(sample_en,VOCAB_SIZE,MAX_LENGTH,VOCAB_EN_FILE)
     vectorizer_vi = create_vectorizer(sample_vi,VOCAB_SIZE,MAX_LENGTH,VOCAB_VI_FILE)

@@ -1,4 +1,4 @@
-VOCAB_DIR = "./Training_Data/vocab"
+VOCAB_DIR = "./Training_Data/vocab_en_to_vi/"
 VOCAB_EN_FILE = VOCAB_DIR+"vocab_en.pkl"
 VOCAB_VI_FILE = VOCAB_DIR+"vocab_vi.pkl"
 
@@ -21,8 +21,8 @@ BATCH_SIZE = 128
 BUFFER_SIZE = 20000
 
 # 5. Token
-START_TOKEN = "<start>"
-END_TOKEN = "<end>"
+START_TOKEN = "sostoken"
+END_TOKEN = "eostoken"
 
 #HYPER PARAMETER
 NUM_LAYERS = 4

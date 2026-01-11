@@ -12,7 +12,7 @@ VOCAB_SIZE_BPE = 32000
 MIN_LEN = 2
 MAX_LENGTH_FILTER = 100
 LEN_RATIO = 1.5
-MAX_SAMPLE = 2000000
+MAX_SAMPLE = 1500000
 
 logging.basicConfig(level=logging.INFO)
 
@@ -47,7 +47,7 @@ def train_and_save_bpe(files,save_path,vocab_size):
 
     trainer = BpeTrainer(
         vocab_size=vocab_size,
-        special_tokens=["[UNK]","[PAD]","<start>","<end>"]
+        special_tokens=["[UNK]","[PAD]","sostoken","eostoken"]
     )
 
     tokenizer.train(files, trainer)
@@ -85,7 +85,7 @@ def process_pipline():
     tokenizer_en = train_and_save_bpe(["temp_clean.en"],"tokenizer_en.json",VOCAB_SIZE_BPE)
     tokenizer_vi = train_and_save_bpe(["temp_clean.vi"],"tokenizer_vi.json",VOCAB_SIZE_BPE)
 
-    logging.info("Encoding BPE and add <start>, <end> tags...")
+    logging.info("Encoding BPE and add sostoken, eostoken tokens...")
 
     with open("temp_clean.en", "r", encoding="utf-8") as f_en, \
         open("temp_clean.vi", "r", encoding="utf-8") as f_vi, \
@@ -102,11 +102,11 @@ def process_pipline():
             tokens_en = tokenizer_en.encode(en).tokens
             tokens_vi = tokenizer_vi.encode(vi).tokens
 
-            clean_bpe_en = " ".join(tokens_en)
-            clean_bpe_vi = " ".join(tokens_vi)
+            clean_bpe_en = f"sostoken {' '.join(tokens_en)} eostoken"
+            clean_bpe_vi = f"sostoken {' '.join(tokens_vi)} eostoken"
 
             out_en.write(clean_bpe_en+"\n")
-            out_vi.write(f"<start> {clean_bpe_vi} <end>\n")
+            out_vi.write(clean_bpe_vi+"\n")
     if os.path.exists("temp_clean.en"):
         os.remove("temp_clean.en")
     if os.path.exists("temp_clean.vi"):

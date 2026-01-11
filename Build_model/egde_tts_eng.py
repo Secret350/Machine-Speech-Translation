@@ -1,0 +1,20 @@
+import asyncio
+import edge_tts
+
+voice = "vi-VN-NamMinhNeural"
+
+class VNTSS:
+    def __init__(self,device="cpu"):
+        print(">>>[TTS] Use Microsoft Edge TTS (onl)")
+        pass
+    async def genaudio(self,text, output_file):
+        communicate = edge_tts.Communicate(text,voice)
+        await communicate.save(output_file)
+
+    def speak(self,text,output_file = "output_vi.mp3"):
+        try:
+            asyncio.run(self.genaudio(text,output_file))
+            return output_file
+        except Exception as e:
+            print(f"TTS_Egde error {e}")
+            return None
