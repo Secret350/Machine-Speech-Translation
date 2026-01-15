@@ -1,6 +1,8 @@
 VOCAB_DIR = "./Training_Data/vocab_en_to_vi/"
 VOCAB_EN_FILE = VOCAB_DIR+"vocab_en.pkl"
 VOCAB_VI_FILE = VOCAB_DIR+"vocab_vi.pkl"
+VOCAB_EN_NEW_FILE = VOCAB_DIR+"vocab_new_en.pkl"
+VOCAB_VI_NEW_FILE = VOCAB_DIR+"vocab_new_vi.pkl"
 
 # 1. Đường dẫn dữ liệu
 RAW_DIR = "./Training_Data/raw"
