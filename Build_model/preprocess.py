@@ -40,7 +40,8 @@ def preprocess(raw_en_path, raw_vi_path, out_en_path, out_vi_path):
 
             try:
                 vi_segmented = word_tokenize(vi, format="text")
-                vi_segmented.encode('utf-8')
+                vi_final = f"<start> {vi_segmented} <end>"
+                vi_final.encode('utf-8')
                 en.encode('utf-8')
 
                 out_en.write(en + "\n")
@@ -50,7 +51,7 @@ def preprocess(raw_en_path, raw_vi_path, out_en_path, out_vi_path):
                 skipped_errors += 1
                 continue
 
-            if count >= 5000:
+            if count >= 1000000:
                 break
     logging.info(f"Preprocessing success! Number of sentences: {count}")
     logging.info(f"Save at {PROCESSED_DIR}")

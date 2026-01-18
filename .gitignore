@@ -1,10 +1,42 @@
+# 1. Bỏ qua môi trường ảo (Nặng hàng GB mà không cần thiết)
+venv_gpu/
+.venv/
 env/
-Build_model/Training_Data/
-Checkpoint/
+
+# 2. Bỏ qua các file biên dịch rác của Python
 __pycache__/
 *.pyc
-.DS_Store
-.venv/
-*h5
-*.tf
+
+# 3. Bỏ qua file Checkpoint Model (Nặng vài GB -> GitHub sẽ chặn ngay)
+# Người dùng khác muốn chạy sẽ tự train hoặc tải từ link Drive bạn chia sẻ
+Build_model/Checkpoint/
+Build_model/Checkpoint_Vi-to-En/
+*.ckpt
+*.h5
+*.pth
+
+# 4. Bỏ qua file thực thi nặng
+# ffmpeg.exe nặng gần 100MB, đẩy lên rất rủi ro.
+# Hãy hướng dẫn người dùng tự cài ffmpeg hoặc tải riêng.
+Build_model/ffmpeg.exe
+Build_model/tokenizer_en.json
+Build_model/tokenizer_vi.json
+*.exe
+
+# 5. Bỏ qua dữ liệu tạm và file log
+Build_model/temp_eval_audio/
+temp_input.wav
+*.log
+evaluation_report.txt
+out_en.mp3
+out_vi.mp3
+
+# 6. Bỏ qua file cấu hình IDE
 .idea/
+.vscode/
+
+# 7. Bỏ qua file chứa Token bí mật (Nếu bạn dùng biến môi trường .env)
+.env
+
+#8. Bỏ qua file Training_Data
+Build_model/Training_Data/

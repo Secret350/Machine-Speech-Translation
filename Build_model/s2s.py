@@ -1,15 +1,36 @@
 import os
+import sys
+import math
+try:
+    import site
+    site_packages = site.getsitepackages()[1]
+
+    nvidia_libs = [
+        os.path.join(site_packages,"nvidia","cublas","bin"),
+        os.path.join(site_packages,"nvidia","cudnn","bin")
+    ]
+
+    for lib_dir in nvidia_libs:
+        if os.path.exists(lib_dir):
+            os.environ["PATH"] = lib_dir + os.pathsep + os.environ["PATH"]
+            if hasattr(os,"add_dll_directory"):
+                os.add_dll_directory(lib_dir)
+except Exception as e:
+    print(f"WARN: Can not load NVIDIA libs: {e}")
+
 import time
 import asyncio
 from idlelib.config_key import translate_key
 import speech_recognition as sr
-import whisper
+from faster_whisper import WhisperModel
 import torch
 import tensorflow as tf
 from config import *
 from translation_model import Transformer
 from dataset import get_vocab_size,create_vectorizer
 
+os.environ["HF_TOKEN"] = "!!!---FILL YOUR HF_TOKEN HERE---!!!"
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 try:
     from egde_tts_eng import VNTSS
 except ImportError:
@@ -20,7 +41,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"]="3"
 ckpt_en_vi = "./Checkpoint/Train"
 ckpt_vi_en = "./Checkpoint_Vi-to-En/Train"
 
-whisper_device = "cpu"
+whisper_device = "cuda"
 
 class StsSystem:
     def __init__(self):
@@ -31,11 +52,15 @@ class StsSystem:
             try:
                 for gpu in gpus:
                     tf.config.experimental.set_memory_growth(gpu,True)
-            except RuntimeError as e:
-                print(f"Error: {e}")
+            except RuntimeError as error:
+                print(f"Error: {error}")
 
-        print("[1/5] Loading Whisper (ASR)...")
-        self.asr_model = whisper.load_model("small",device=whisper_device)
+        print("[1/5] Loading Faster Whisper (ASR)...")
+        try:
+            self.asr_model = WhisperModel("large-v3", device=whisper_device, compute_type="int8")
+        except Exception:
+            print("GPU Error or not supported, switching to float32...")
+            self.asr_model = WhisperModel("large-v3", device=whisper_device, compute_type="float32")
 
         print("[2/5] Loading Edge-TTS (Onl)...")
         self.tts_eng = VNTSS()
@@ -94,59 +119,77 @@ class StsSystem:
             else:
                 print(f"Checkpoint not found!")
                 return None
-        except Exception as e:
-            print(f"Load Error: Model {name}; error {e}")
+        except Exception as e2:
+            print(f"Load Error: Model {name}; error {e2}")
             return None
     def run(self):
         with self.mic as source:
             print("Preparing microphone please keep silent in 2 seconds...")
             self.recognizer.adjust_for_ambient_noise(source,duration=2)
             self.recognizer.energy_threshold = 300
-            self.recognizer.dynamic_energy_threshold = True
+            self.recognizer.dynamic_energy_threshold = False
+            self.recognizer.pause_threshold = 0.8
         while True:
             try:
                 print("Listening...")
                 with self.mic as source:
                     audio = self.recognizer.listen(source,timeout=None,phrase_time_limit=5)
+                    start_time = time.time()
                     with open("temp_input.wav","wb") as f:
                         f.write(audio.get_wav_data())
-                    audio_w = whisper.load_audio("temp_input.wav")
-                    audio_w = whisper.pad_or_trim(audio_w)
-                    mel = whisper.log_mel_spectrogram(audio_w).to(self.asr_model.device)
+                    segments,info = self.asr_model.transcribe("temp_input.wav",beam_size=5,vad_filter=True)
+                    text_seg = []
+                    for seg in segments:
+                        text_seg.append(seg.text)
+                    input_text = ' '.join(text_seg).strip()
 
-                    _,probs = self.asr_model.detect_language(mel)
-                    if isinstance(probs, list):
-                        probs = probs[0]
-                    lang = max(probs, key = probs.get)
+                    lang = info.language
+                    prob = info.language_probability
 
-                    result = self.asr_model.transcribe("temp_input.wav",fp16=False)
-                    input_text = result["text"].strip()
+                    t_asr = time.time()
 
-                    if not input_text: continue
+                    if not input_text:
+                        continue
+                    print(f"Detected: {lang.upper()} (Conf: {prob:.2f})")
+                    t_mt = t_asr
+                    t_tts = t_asr
+                    processed = False
 
                     if lang == "en":
                         print(f"EN Input: {input_text}")
                         if self.model_en_vi:
                             translate_text = self.translate_greedy(input_text,self.model_en_vi)
+                            t_mt = time.time()
                             print(f"VI output: {translate_text}")
                             self.play_audio_result(translate_text,lang_code="vi")
+                            t_tts = time.time()
+                            processed = True
                         else:
                             print("Model EN-VI not ready now!")
                     elif lang == "vi":
                         print(f"VI Input: {input_text}")
                         if self.model_vi_en:
                             en_text = self.translate_greedy(input_text, self.model_vi_en)
+                            t_mt = time.time()
                             print(f"EN Output: {en_text}")
                             self.play_audio_result(en_text, lang_code="en")
+                            t_tts = time.time()
+                            processed = True
                         else:
                             print("Model VI-EN not ready!")
                     else:
                         print(f"Language detected: {lang} is not support now!")
+                    if processed:
+                        print(f"\nTHỐNG KÊ ĐỘ TRỄ:")
+                        print(f"- Whisper (ASR): {t_asr - start_time:.2f}s")
+                        print(f"- Transformer (MT): {t_mt - t_asr:.2f}s")
+                        print(f"- Edge-TTS:      {t_tts - t_mt:.2f}s")
+                        print(f"=> Total:    {t_tts - start_time:.2f}s")
             except KeyboardInterrupt:
                 print("Goodbye!")
                 break
-            except Exception as e:
-                print(f"Runtime Error: {e}")
+            except Exception as e3:
+                print(f"Runtime Error: {e3}")
                 with self.mic as source: self.recognizer.adjust_for_ambient_noise(source)
     @staticmethod
     def translate_greedy(sentence, system):
@@ -162,7 +205,15 @@ class StsSystem:
             "hello": "xin chào",
             "hi": "chào bạn",
             "thank you": "cảm ơn",
-            "what's up": "xin chào bro"
+            "what's up": "xin chào bro",
+            "i'm good":"Tôi ổn",
+            "come on":"thôi nào",
+            "bạn tên là gì":"what's your name",
+            "xin chào":"hello",
+            "chào bạn":"hi",
+            "cảm ơn":"thank you",
+            "xin chào bro": "what's up",
+            "thôi nào":"come on"
         }
 
         for eng_word, vi_word in GREETING_HACKS.items():
@@ -212,15 +263,68 @@ class StsSystem:
         ai_trans =  " ".join(result_word)
         final_result = prefix_translation + ai_trans
         return final_result.strip()
+    @staticmethod
+    def beam_search(sentence, system, beam_size=4, alpha=0.6):
+        sentence = sentence.lower().strip().replace("?","").replace(".","")
+        if not sentence: return ""
+
+        vec_in = system["vec_in"]
+        transformer = system["model"]
+        idx_to_word = system["idx_to_word"]
+
+        sentence = f"sostoken {sentence} eostoken"
+        inp_tensor = vec_in(tf.constant([sentence]))
+
+        start_token = 2
+        end_token = 3
+
+        beam = [([start_token],0.0)]
+        completed_sequences = []
+        for _ in range (MAX_LENGTH):
+            candidates = []
+            for seq,score in beam:
+                if seq[-1] == end_token:
+                    norm_score = score/(len(seq)**alpha)
+                    completed_sequences.append((seq,norm_score))
+                    continue
+                tar_tensor = tf.constant([seq],dtype=tf.int64)
+                predictions,_ = transformer(inp_tensor,tar_tensor,training=False)
+                predictions = predictions[:,-1:,:]
+                probs = tf.nn.softmax(predictions,axis=-1).numpy()[0][0]
+
+                top_k_indices = probs.argsort()[-beam_size:][::-1]
+                for idx in top_k_indices:
+                    prob = probs[idx]
+                    log_prob = math.log(prob + 1e-10)
+                    new_score = score + log_prob
+                    new_seq = seq + [idx]
+                    candidates.append((new_seq,new_score))
+            if len(candidates) == 0:
+                break
+            ordered = sorted(candidates,key=lambda x: x[1],reverse=True)
+            beam = ordered[:beam_size]
+        if not completed_sequences:
+            completed_sequences = [(seq,score/(len(seq)**alpha)) for seq, score in beam]
+        best_seq, best_score = max(completed_sequences, key=lambda x: x[1])
+
+        result_words = []
+        for idx in best_seq:
+            if idx in idx_to_word:
+                word = idx_to_word[idx]
+                if word not in ["sostoken","eostoken","[UNK]"]:
+                    result_words.append(word)
+        return " ".join(result_words)
     def play_audio_result(self,text,lang_code):
         if not text: return
         output_filename = f"out_{lang_code}.mp3"
-
-        saved_file = self.tts_eng.speak(text,output_filename,lang=lang_code)
-        if saved_file and os.path.exists(saved_file):
-            os.system(f'start /min "" "{saved_file}"')
-        else:
-            print("Can't create sound!")
+        try:
+            saved_file = self.tts_eng.speak(text,output_filename,lang=lang_code)
+            if saved_file and os.path.exists(saved_file):
+                os.system(f'start /min "" "{saved_file}"')
+            else:
+                print("Can't create sound!")
+        except Exception as e4:
+            print(f"TTS Error: {e4}")
 
 if __name__ == "__main__":
     app = StsSystem()
