@@ -42,7 +42,7 @@ ___
   ```
   - To run Speech-to-Speech (EN <> VI) program
   ```bash
-  cd Build_model/System_and_Evaluate
+  cd Build_model
   python s2s.py
   ```
 ___

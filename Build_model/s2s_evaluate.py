@@ -86,7 +86,7 @@ async def evaluate_one_direction(direction, system, indices, en_lines, vi_lines,
         tgt_lang = "vi"
         # Đảm bảo class StsSystem của bạn có thuộc tính model_en_vi
         model_mt = system.model_en_vi
-        title = "🔴 CHIỀU: ANH (Audio) -> VIỆT (Text)"
+        title = "CHIỀU: ANH (Audio) -> VIỆT (Text)"
     else:  # vi_en
         src_lines = vi_lines
         tgt_lines = en_lines
@@ -94,7 +94,7 @@ async def evaluate_one_direction(direction, system, indices, en_lines, vi_lines,
         tgt_lang = "en"
         # Đảm bảo class StsSystem của bạn có thuộc tính model_vi_en
         model_mt = system.model_vi_en
-        title = "🔵 CHIỀU: VIỆT (Audio) -> ANH (Text)"
+        title = "CHIỀU: VIỆT (Audio) -> ANH (Text)"
 
     log_print(log_f, "\n" + "=" * 80)
     log_print(log_f, title)
@@ -175,7 +175,7 @@ async def evaluate_one_direction(direction, system, indices, en_lines, vi_lines,
 async def run_evaluation():
     # Mở file ghi log
     log_f = open(LOG_FILE, "w", encoding="utf-8")
-    log_print(log_f, "🚀 BẮT ĐẦU ĐÁNH GIÁ HỆ THỐNG S2S 2 CHIỀU (End-to-End)")
+    log_print(log_f, "BẮT ĐẦU ĐÁNH GIÁ HỆ THỐNG S2S 2 CHIỀU (End-to-End)")
 
     # A. Load Model (Load 1 lần dùng chung cho cả 2 chiều)
     os.chdir(BUILD_MODEL_DIR)
@@ -210,12 +210,12 @@ async def run_evaluation():
 
     # --- TỔNG KẾT CHUNG ---
     log_print(log_f, "\n" + "=" * 70)
-    log_print(log_f, "🏆 BẢNG TỔNG SẮP END-TO-END (S2S)")
+    log_print(log_f, "BẢNG TỔNG SẮP END-TO-END (S2S)")
     log_print(log_f, "=" * 70)
     log_print(log_f, f"1. Anh -> Việt: {score_en_vi:.2f} BLEU")
     log_print(log_f, f"2. Việt -> Anh: {score_vi_en:.2f} BLEU")
     log_print(log_f, "-" * 40)
-    log_print(log_f, f"⭐️ TRUNG BÌNH:   {(score_en_vi + score_vi_en) / 2:.2f} BLEU")
+    log_print(log_f, f"TRUNG BÌNH:   {(score_en_vi + score_vi_en) / 2:.2f} BLEU")
     log_print(log_f, "=" * 70)
 
     log_print(log_f, f"\n(Chi tiết xem tại file '{LOG_FILE}')")
