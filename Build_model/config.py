@@ -1,11 +1,11 @@
-VOCAB_DIR = "./ModelCheckpoints/Vocab/"
+VOCAB_DIR = "../ModelCheckpoints/Vocab/"
 VOCAB_EN_FILE = VOCAB_DIR+"vocab_en.pkl"
 VOCAB_VI_FILE = VOCAB_DIR+"vocab_vi.pkl"
 VOCAB_EN_NEW_FILE = VOCAB_DIR+"vocab_new_en.pkl"
 VOCAB_VI_NEW_FILE = VOCAB_DIR+"vocab_new_vi.pkl"
 
 # 1. Đường dẫn dữ liệu
-RAW_DIR = "./Training_Data/raw"
+RAW_DIR = "../Training_Data/raw"
 PROCESSED_DIR = "./Training_Data/processed"
 
 # 2 file dataset đã giải nén

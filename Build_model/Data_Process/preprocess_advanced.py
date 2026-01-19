@@ -4,7 +4,7 @@ from tokenizers import Tokenizer
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
 from tokenizers.pre_tokenizers import Whitespace
-from config import *
+from Build_model.config import *
 from tqdm import tqdm
 import logging
 
@@ -82,8 +82,8 @@ def process_pipline():
                 break
     logging.info(f"Kept {kept_count} clean sentences / {len(lines_en)} sentences.")
     logging.info("Training BPE Tokenizer...")
-    tokenizer_en = train_and_save_bpe(["temp_clean.en"],"tokenizer_en.json",VOCAB_SIZE_BPE)
-    tokenizer_vi = train_and_save_bpe(["temp_clean.vi"],"tokenizer_vi.json",VOCAB_SIZE_BPE)
+    tokenizer_en = train_and_save_bpe(["temp_clean.en"], "../tokenizer_en.json", VOCAB_SIZE_BPE)
+    tokenizer_vi = train_and_save_bpe(["temp_clean.vi"], "../tokenizer_vi.json", VOCAB_SIZE_BPE)
 
     logging.info("Encoding BPE and add sostoken, eostoken tokens...")
 

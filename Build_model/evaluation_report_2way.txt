@@ -1,0 +1,50 @@
+🚀 BẮT ĐẦU ĐÁNH GIÁ HỆ THỐNG S2S 2 CHIỀU (End-to-End)
+
+>>> Đang đọc dữ liệu train từ config...
+
+================================================================================
+🔴 CHIỀU: ANH (Audio) -> VIỆT (Text)
+================================================================================
+INPUT (Audio)                       | WHISPER HEARD                       | OUTPUT                              | BLEU
+------------------------------------------------------------------------------------------------------------------------
+he made me relieve myself of a...   | He made me relieve myself of a...   | anh ấy khiến tôi tự thay đổi t...   | 0.0174
+yes , he did .                      | Yes, he did.                        | anh ấy đã                           | 0.2069
+it hurts me .                       | It hurts me.                        | đau quá                             | 0.0334
+- they ' d be better off with ...   | They'd be better off with him.      | món be tốt hơn với anh ấy           | 0.0644
+ah ! i tell you , off the reco...   | Ah, I tell you, off the record...   | tôi đã nói với ra khỏi hồ sơ        | 0.0604
+as they say , drunks always ha...   | As they say, drunks always hav...   | khi họ say xỉn luôn có lý do        | 0.0227
+i mean , if you don ' t rememb...   | I mean, if you don't remember ...   | tôi if you s hãy nhớ khi chúng...   | 0.0376
+a man called abbey .                | A man called Abby.                  | một người tên                       | 0.1482
+- no . new york city .              | No. New York City.                  | không có new york                   | 0.1140
+everyone will want to celebrat...   | Everyone will want to celebrat...   | mọi người sẽ muốn ăn mừng vua ...   | 0.5273
+------------------------------------------------------------------------------------------------------------------------
+✨ KẾT QUẢ 🔴 CHIỀU: ANH (Audio) -> VIỆT (Text): 11.06 BLEU
+
+================================================================================
+🔵 CHIỀU: VIỆT (Audio) -> ANH (Text)
+================================================================================
+INPUT (Audio)                       | WHISPER HEARD                       | OUTPUT                              | BLEU
+------------------------------------------------------------------------------------------------------------------------
+ông ta làm cho tôi cảm thấy dị...   | Ông ta làm cho tôi cảm thấy dị...   | he ' s a very good man .            | 0.0168
+vâng , anh ấy đã .                  | Vâng, anh ấy đã.                    | he ' s been working on it for ...   | 0.0203
+nó làm em đau .                     | Nó làm em đau.                      | it ' s a good place .               | 0.0393
+- chúng tốt hơn nên ở với anh ...   | Chúng tốt hơn nên ở với anh ta...   | they ' d better stay with him ...   | 0.1871
+tôi sẽ nói với ông , làm một h...   | Tôi sẽ nói với ông là một hồ s...   | i ' ll tell santa claus .           | 0.0283
+người ta thường nói , kẻ say l...   | Người ta thường nói, kẻ say lu...   | people always say that they ' ...   | 0.0303
+ý tôi là , không nhớ chúng ta ...   | Ý tôi là, không nhớ chúng ta đ...   | i mean , i ' m not gonna be a ...   | 0.0686
+một người tên là ab bey .           | Một người tên là A.B. Bay.          | a man named hunter .                | 0.1257
+- không , dân new york              | Không, dân New York.                | new york people .                   | 0.0888
+mọi người sẽ muốn ăn mừng vua ...   | Mọi người sẽ muốn ăn mừng vua ...   | you will want to celebrate the...   | 0.3252
+------------------------------------------------------------------------------------------------------------------------
+✨ KẾT QUẢ 🔵 CHIỀU: VIỆT (Audio) -> ANH (Text): 9.65 BLEU
+
+======================================================================
+🏆 BẢNG TỔNG SẮP END-TO-END (S2S)
+======================================================================
+1. Anh -> Việt: 11.06 BLEU
+2. Việt -> Anh: 9.65 BLEU
+----------------------------------------
+⭐️ TRUNG BÌNH:   10.36 BLEU
+======================================================================
+
+(Chi tiết xem tại file 'evaluation_report_2way.txt')

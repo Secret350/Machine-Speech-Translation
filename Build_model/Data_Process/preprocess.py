@@ -1,4 +1,4 @@
-from config import *
+from Build_model.config import *
 from underthesea import word_tokenize
 from tqdm import tqdm
 import logging

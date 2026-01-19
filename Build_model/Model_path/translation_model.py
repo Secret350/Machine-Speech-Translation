@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Dropout,Layer
-from transformer_layers import EncoderLayer,DecoderLayer,PositionalEmbedding
+from Build_model.Model_path.transformer_layers import EncoderLayer,DecoderLayer,PositionalEmbedding
 
 def create_padding_mask(seq):
     seq = tf.cast(tf.math.equal(seq,0),tf.float32)

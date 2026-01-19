@@ -3,10 +3,10 @@ import time
 import logging
 import os
 from tensorflow.keras import mixed_precision
-import config
+from Build_model.config import *
 from translation_model import Transformer
 from learning_rate import ComputeLR
-from dataset_vi_en import get_dataset,get_vocab_size
+from Build_model.Data_Process.dataset_vi_en import get_dataset
 
 policy = mixed_precision.Policy('mixed_float16')
 mixed_precision.set_global_policy(policy)
@@ -32,13 +32,13 @@ input_vocab_size = len(vectorizer_vi.get_vocabulary())
 target_vocab_size = len(vectorizer_en.get_vocabulary())
 
 with tf.device('/GPU:0' if gpus else '/CPU:0'):
-    learning_rate = ComputeLR(config.D_MODEL)
+    learning_rate = ComputeLR(D_MODEL)
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, beta_1=0.9,beta_2=0.98,epsilon= 1e-9,clipnorm=1.0)
     optimizer = mixed_precision.LossScaleOptimizer(optimizer)
-    transformer = Transformer(num_layers = config.NUM_LAYERS,d_model = config.D_MODEL,num_heads = config.NUM_HEADS,dff = config.DFF,input_vocab_size = input_vocab_size,target_vocab_size = target_vocab_size,dropout_rate = config.DROPOUT_RATE)
+    transformer = Transformer(num_layers = NUM_LAYERS,d_model = D_MODEL,num_heads = NUM_HEADS,dff = DFF,input_vocab_size = input_vocab_size,target_vocab_size = target_vocab_size,dropout_rate = DROPOUT_RATE)
 
 #Tao va load checkpoints
-checkpoint_path = "./Checkpoint_Vi-to-En/Train"
+checkpoint_path = "../Checkpoint_Vi-to-En/Train"
 checkpnt = tf.train.Checkpoint(transformer=transformer,optimizer=optimizer)
 checkpnt_manager = tf.train.CheckpointManager(checkpnt,checkpoint_path,max_to_keep=5)
 

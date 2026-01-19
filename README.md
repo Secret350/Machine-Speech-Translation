@@ -26,31 +26,32 @@ ___
 --- How to run program ---
 * Use pre-trained model:
 
-  - **First**: Install weight of pre-trained model "ModelCheckpoints" by the link below then place that directory in Build_model 
+  - **First**: Install weight of pre-trained model "ModelCheckpoints" by the link below then extract and place that directory in Build_model 
   ```
   https://drive.google.com/file/d/1D0G29vXtSGe2wyjwIKx8lJDUWhNtzsKT/view?usp=drive_link
   ```
   - To run Text-to-Text (EN > VI) program
   ```bash
-  cd Build_model
+  cd Build_model/System_and_Evaluate
   python inference.py
   ```
   - To run Text-to-Text (VI > EN) program
   ```bash
-  cd Build_model
+  cd Build_model/System_and_Evaluate
   python inferencevien.py
   ```
   - To run Speech-to-Speech (EN <> VI) program
   ```bash
-  cd Build_model
+  cd Build_model/System_and_Evaluate
   python s2s.py
   ```
 ___
 
 --- Evaluation ---
-- **BLEU Score (EN->VI)**: 22.42
-- **BLEU Score (VI->EN)**: 21.76
-- **BLEU Score (S2S)**: 10.75
+- **BLEU Score (EN > VI)**: 22.42
+- **BLEU Score (VI > EN)**: 21.76
+- **BLEU Score (S2S) (EN > VI)**: 11.06
+- **BLEU Score (S2S) (VI > EN)**: 9.65
 ___
 
 **NOTE**

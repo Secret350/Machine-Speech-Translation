@@ -1,6 +1,6 @@
 import os
-import sys
 import math
+from config import *
 try:
     import site
     site_packages = site.getsitepackages()[1]
@@ -19,20 +19,22 @@ except Exception as e:
     print(f"WARN: Can not load NVIDIA libs: {e}")
 
 import time
-import asyncio
-from idlelib.config_key import translate_key
 import speech_recognition as sr
 from faster_whisper import WhisperModel
-import torch
 import tensorflow as tf
-from config import *
-from translation_model import Transformer
-from dataset import get_vocab_size,create_vectorizer
+from Build_model.Model_path.translation_model import Transformer
+from Build_model.Data_Process.dataset import create_vectorizer
+
+Vocab_En = "./ModelCheckpoints/Vocab/vocab_en.pkl"
+Vocab_Vi = "./ModelCheckpoints/Vocab/vocab_vi.pkl"
+
+Vocab_En_New = "./ModelCheckpoints/Vocab/vocab_new_en.pkl"
+Vocab_Vi_New = "./ModelCheckpoints/Vocab/vocab_new_vi.pkl"
 
 os.environ["HF_TOKEN"] = "!!!---FILL YOUR HF_TOKEN HERE---!!!"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 try:
-    from egde_tts_eng import VNTSS
+    from Build_model.Model_path.egde_tts_eng import VNTSS
 except ImportError:
     print("edge_tts_eng: file not found!")
     exit()
@@ -68,8 +70,8 @@ class StsSystem:
         print("[3/5] EN -> VI Loading Translator En-Vi...")
         self.model_en_vi = self.load_translator(
             ckpt_dir=ckpt_en_vi,
-            vocab_in = VOCAB_EN_FILE,
-            vocab_out = VOCAB_VI_FILE,
+            vocab_in = Vocab_En,
+            vocab_out = Vocab_Vi,
             name="EN-VI"
         )
 
@@ -77,8 +79,8 @@ class StsSystem:
         if os.path.exists(ckpt_vi_en):
             self.model_vi_en = self.load_translator(
                 ckpt_dir=ckpt_vi_en,
-                vocab_in=VOCAB_VI_NEW_FILE,
-                vocab_out=VOCAB_EN_NEW_FILE,
+                vocab_in=Vocab_Vi_New,
+                vocab_out=Vocab_En_New,
                 name="VI-EN",
             )
         else:

@@ -1,4 +1,4 @@
-from config import *
+from Build_model.config import *
 import tensorflow as tf
 import os
 import logging

@@ -2,7 +2,7 @@ import tensorflow as tf
 import random
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction, corpus_bleu
 from inferencevien import beam_search, load_resource, clean_text
-import config
+from Build_model.config import *
 from tqdm import tqdm
 import re
 
@@ -23,11 +23,11 @@ def calculate_bleu():
         print(f"Lỗi: {e}")
         return
 
-    print(f">>> Đang đọc dữ liệu từ {config.CLEAN_EN_FILE} và {config.CLEAN_VI_FILE}...")
+    print(f">>> Đang đọc dữ liệu từ {CLEAN_EN_FILE} và {CLEAN_VI_FILE}...")
 
-    with open(config.CLEAN_EN_FILE, 'r', encoding='utf-8') as f:
+    with open(CLEAN_EN_FILE, 'r', encoding='utf-8') as f:
         en_sentences = f.readlines()
-    with open(config.CLEAN_VI_FILE, 'r', encoding='utf-8') as f:
+    with open(CLEAN_VI_FILE, 'r', encoding='utf-8') as f:
         vi_sentences = f.readlines()
 
     assert len(en_sentences) == len(vi_sentences), "Lỗi: Số dòng file EN và VI không khớp nhau!"
