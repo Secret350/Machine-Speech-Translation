@@ -127,7 +127,7 @@ async def run_evaluation():
 
         # 3. Transformer Dịch
         if whisper_text:
-            pred_vi = system.beam_src = system.beam_search(whisper_text, system.model_en_vi,beam_size=3)
+            pred_vi = system.beam_src = system.translate_greedy(whisper_text,system.model_en_vi)
         else:
             pred_vi = ""
 

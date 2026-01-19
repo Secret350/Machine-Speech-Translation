@@ -38,8 +38,8 @@ except ImportError:
     exit()
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"]="3"
-ckpt_en_vi = "./Checkpoint/Train"
-ckpt_vi_en = "./Checkpoint_Vi-to-En/Train"
+ckpt_en_vi = "./ModelCheckpoints/EN_VI_Checkpoint"
+ckpt_vi_en = "./ModelCheckpoints/VI_EN_Checkpoint"
 
 whisper_device = "cuda"
 

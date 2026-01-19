@@ -45,8 +45,8 @@ def clean_text(txt):
 def load_resource():
     print("\n>>>[1/4] Loading BPE Tokenizers...")
     try:
-        tokenizer_en = Tokenizer.from_file("tokenizer_en.json")
-        tokenizer_vi = Tokenizer.from_file("tokenizer_vi.json")
+        tokenizer_en = Tokenizer.from_file("./ModelCheckpoints/json/tokenizer_en.json")
+        tokenizer_vi = Tokenizer.from_file("./ModelCheckpoints/json/tokenizer_vi.json")
     except Exception:
         print(".json file not found! run preprocess_advanced.py first!")
         return None, None, None, None, None, None
@@ -76,7 +76,7 @@ def load_resource():
         dropout_rate=DROPOUT_RATE
     )
     print(">>> [4/4] Dang load Weights tu Checkpoint...")
-    checkpoint_path = "./Checkpoint/Train"
+    checkpoint_path = "./ModelCheckpoints/EN_VI_Checkpoint"
 
     temp_optimizer = tf.keras.optimizers.Adam()
 
