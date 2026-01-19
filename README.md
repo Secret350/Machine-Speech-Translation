@@ -28,7 +28,7 @@ ___
 
   - **First**: Install weight of pre-trained model "ModelCheckpoints" by the link below then place that directory in Build_model 
   ```
-    
+  https://drive.google.com/file/d/1D0G29vXtSGe2wyjwIKx8lJDUWhNtzsKT/view?usp=drive_link
   ```
   - To run Text-to-Text (EN > VI) program
   ```bash
