@@ -3,7 +3,7 @@ import edge_tts
 
 class VNTSS:
     def __init__(self,device="cpu"):
-        print(">>>[TTS] Use Microsoft Edge TTS (onl)")
+        #print(">>>[TTS] Use Microsoft Edge TTS (onl)")
         pass
     async def genaudio(self,text, output_file,voice):
         communicate = edge_tts.Communicate(text,voice)

@@ -88,7 +88,7 @@ class StsSystem:
         print("[5/5] Calibrating Micro...")
         self.recognizer = sr.Recognizer()
         self.mic = sr.Microphone()
-        print("System Start...\nReady: ")
+        print("System Started!")
     @staticmethod
     def load_translator(ckpt_dir, vocab_in, vocab_out, name):
         try:
@@ -152,28 +152,28 @@ class StsSystem:
 
                     if not input_text:
                         continue
-                    print(f"Detected: {lang.upper()} (Conf: {prob:.2f})")
+                    #print(f"Detected: {lang.upper()} (Conf: {prob:.2f})")
                     t_mt = t_asr
                     t_tts = t_asr
                     processed = False
 
                     if lang == "en":
-                        print(f"EN Input: {input_text}")
+                        print(f"Input: {input_text}")
                         if self.model_en_vi:
                             translate_text = self.translate_greedy(input_text,self.model_en_vi)
                             t_mt = time.time()
-                            print(f"VI output: {translate_text}")
+                            print(f"Output: {translate_text}")
                             self.play_audio_result(translate_text,lang_code="vi")
                             t_tts = time.time()
                             processed = True
                         else:
                             print("Model EN-VI not ready now!")
                     elif lang == "vi":
-                        print(f"VI Input: {input_text}")
+                        print(f"Input: {input_text}")
                         if self.model_vi_en:
                             en_text = self.translate_greedy(input_text, self.model_vi_en)
                             t_mt = time.time()
-                            print(f"EN Output: {en_text}")
+                            print(f"Output: {en_text}")
                             self.play_audio_result(en_text, lang_code="en")
                             t_tts = time.time()
                             processed = True
@@ -182,10 +182,10 @@ class StsSystem:
                     else:
                         print(f"Language detected: {lang} is not support now!")
                     if processed:
-                        print(f"\nTHỐNG KÊ ĐỘ TRỄ:")
-                        print(f"- Whisper (ASR): {t_asr - start_time:.2f}s")
-                        print(f"- Transformer (MT): {t_mt - t_asr:.2f}s")
-                        print(f"- Edge-TTS:      {t_tts - t_mt:.2f}s")
+                        # print(f"\nTHỐNG KÊ ĐỘ TRỄ:")
+                        # print(f"- Whisper (ASR): {t_asr - start_time:.2f}s")
+                        # print(f"- Transformer (MT): {t_mt - t_asr:.2f}s")
+                        # print(f"- Edge-TTS:      {t_tts - t_mt:.2f}s")
                         print(f"=> Total:    {t_tts - start_time:.2f}s")
             except KeyboardInterrupt:
                 print("Goodbye!")

@@ -43,7 +43,7 @@ def clean_text(txt):
     return txt
 
 def load_resource():
-    print("\n>>>[1/4] Loading BPE Tokenizers...")
+    print(">>> [1/4] Loading BPE Tokenizers...")
     try:
         tokenizer_en = Tokenizer.from_file("../ModelCheckpoints/json/tokenizer_en.json")
         tokenizer_vi = Tokenizer.from_file("../ModelCheckpoints/json/tokenizer_vi.json")
@@ -51,7 +51,7 @@ def load_resource():
         print(".json file not found! run preprocess_advanced.py first!")
         return None, None, None, None, None, None
 
-    print("\n>>> [2/4] Loading Keras Vectorizers...")
+    print(">>> [2/4] Loading Keras Vectorizers...")
 
     vectorizer_en = create_vectorizer(None, VOCAB_SIZE, MAX_LENGTH, VOCAB_EN_NEW_FILE)
     vectorizer_vi = create_vectorizer(None, VOCAB_SIZE, MAX_LENGTH, VOCAB_VI_NEW_FILE)
@@ -63,8 +63,6 @@ def load_resource():
 
     input_vocab_size = len(vectorizer_vi.get_vocabulary())
     target_vocab_size = len(vectorizer_en.get_vocabulary())
-    print(f"Input Vocab Size: {input_vocab_size}")
-    print(f"Target Vocab Size: {target_vocab_size}")
 
     transformer = Transformer(
         num_layers=NUM_LAYERS,
@@ -84,7 +82,7 @@ def load_resource():
     ckpt_manager = tf.train.CheckpointManager(ckpt,checkpoint_path,max_to_keep=5)
     if ckpt_manager.latest_checkpoint:
         ckpt.restore(ckpt_manager.latest_checkpoint).expect_partial()
-        print(f">>> Da khoi phuc thanh cong tu {ckpt_manager.latest_checkpoint}")
+        #print(f">>> Da khoi phuc thanh cong tu {ckpt_manager.latest_checkpoint}")
     else:
         print("\n WARNING: Khong tim thay checkpoint nao! Ket qua dich se sai!")
     return tokenizer_en,tokenizer_vi,vectorizer_en,vectorizer_vi,idx_to_word_en,transformer
@@ -93,8 +91,8 @@ def translate(sentence , tokenizer_en, tokenizer_vi,vectorizer_en,vectorizer_vi,
     clean_sentence = clean_text(sentence)
     if clean_sentence in HARD_RULES:
         result = HARD_RULES[clean_sentence]
-        print(f"Input: {sentence}")
-        print(f"English prediction (Dictionary): {result}")
+        print(f"Input-Vie: {sentence}")
+        print(f"Output-Eng: {result}")
         print("\n" + "-" * 50)
         return result
     bpe_tokens = tokenizer_vi.encode(clean_sentence).tokens
@@ -103,7 +101,7 @@ def translate(sentence , tokenizer_en, tokenizer_vi,vectorizer_en,vectorizer_vi,
     vi_seq = vectorizer_vi(tf.convert_to_tensor([bpe_string]))
 
     vocab_list = vectorizer_en.get_vocabulary()
-    print(f"DEBUG Input IDs: {vi_seq.numpy()}")
+    # print(f"DEBUG Input IDs: {vi_seq.numpy()}")
     try:
         sostoken_token_id = vocab_list.index('sostoken')
         eostoken_token_id = vocab_list.index('eostoken')
@@ -117,7 +115,7 @@ def translate(sentence , tokenizer_en, tokenizer_vi,vectorizer_en,vectorizer_vi,
 
     output_array = tf.convert_to_tensor([[sostoken_token_id]],dtype=tf.int64)
     print(f"Input: {sentence}")
-    print(f"Input BPE: {bpe_string}")
+    # print(f"Input BPE: {bpe_string}")
 
     result_ids_hf = []
 
@@ -249,7 +247,7 @@ if __name__ == "__main__":
 
             print("Greedy Search:")
             greedy = translate(text,tok_en,tok_vi,vec_en,vec_vi,idxtoword,model)
-            print(f"{greedy}")
+            print(f"Output-Vie: {greedy}")
 
             # beam_src = beam_search(text,tok_en,tok_vi,vec_en,vec_vi,idxtoword,model,beam_width=3)
             # print(f"Beam Search:{beam_src}")
