@@ -21,6 +21,7 @@ Build_model/Checkpoint_Vi-to-En/
 Build_model/ffmpeg.exe
 Build_model/tokenizer_en.json
 Build_model/tokenizer_vi.json
+Build_model/ModelCheckpoints/
 *.exe
 
 # 5. Bỏ qua dữ liệu tạm và file log
