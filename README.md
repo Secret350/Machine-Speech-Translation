@@ -8,6 +8,12 @@ ___
 - **Text to Speech**: Edge-TTS for natural output sound
 - **Latency**: Optimize for acceptable latency (2-4s for 1 sentence)
 ___
+---Architecture---
+- System architechture:
+  - ![System Architecture](images/system_architecture.png)
+- Custom transformer model architecture:
+  - ![Custom Transformer Architecture](images/transformer_architecture.png)
+___
 --- Installation --- 
 1. Clone the repository:
     ```bash
