@@ -31,7 +31,7 @@ Vocab_Vi = "./ModelCheckpoints/Vocab/vocab_vi.pkl"
 Vocab_En_New = "./ModelCheckpoints/Vocab/vocab_new_en.pkl"
 Vocab_Vi_New = "./ModelCheckpoints/Vocab/vocab_new_vi.pkl"
 
-os.environ["HF_TOKEN"] = "!!!---FILL YOUR HF_TOKEN HERE---!!!"
+os.environ["HF_TOKEN"] = "---!!!Add your HF_TOKEN!!!---"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 try:
     from Build_model.Model_path.egde_tts_eng import VNTSS
@@ -160,10 +160,11 @@ class StsSystem:
                     if lang == "en":
                         print(f"Input: {input_text}")
                         if self.model_en_vi:
-                            translate_text = self.translate_greedy(input_text,self.model_en_vi)
+                            vi_text = self.translate_greedy(input_text,self.model_en_vi)
+                            # vi_text = self.beam_search(input_text, self.model_en_vi)
                             t_mt = time.time()
-                            print(f"Output: {translate_text}")
-                            self.play_audio_result(translate_text,lang_code="vi")
+                            print(f"Output: {vi_text}")
+                            self.play_audio_result(vi_text,lang_code="vi")
                             t_tts = time.time()
                             processed = True
                         else:
@@ -172,6 +173,7 @@ class StsSystem:
                         print(f"Input: {input_text}")
                         if self.model_vi_en:
                             en_text = self.translate_greedy(input_text, self.model_vi_en)
+                            # en_text = self.beam_search(input_text, self.model_vi_en)
                             t_mt = time.time()
                             print(f"Output: {en_text}")
                             self.play_audio_result(en_text, lang_code="en")
@@ -266,7 +268,7 @@ class StsSystem:
         final_result = prefix_translation + ai_trans
         return final_result.strip()
     @staticmethod
-    def beam_search(sentence, system, beam_size=4, alpha=0.6):
+    def beam_search(sentence, system, beam_size=3, alpha=1.2):
         sentence = sentence.lower().strip().replace("?","").replace(".","")
         if not sentence: return ""
 

@@ -1,12 +1,17 @@
 **Machine-Speech-Translation End-to-End (EN -> VI | VI -> EN)**
 ___
 A Speech to Speech and Text to Text Machine Translation system using **FasterWhisper** for ASR, custom **Transformer** model for translation, and **edge-tts** to generate output speech.
+![Demo Preview](images/Gif-system.gif)
 ___
 --- Feature ---
 - **Automatic Speech Recognition**: FasterWhisper (Large-v3 int8)
 - **Translation**: Custom trained Transformer model (English <-> Vietnamese)
 - **Text to Speech**: Edge-TTS for natural output sound
 - **Latency**: Optimize for acceptable latency (2-4s for 1 sentence)
+___
+---Demo Video---
+- In this video my Custom Transformer Model will translate a short basic conversation between a foreigner and a local:
+  - [![Video Demo](https://img.youtube.com/vi/B_nKS6wxI8k/0.jpg)](https://youtu.be/B_nKS6wxI8k)
 ___
 ---Architecture---
 - System architechture:
@@ -59,6 +64,13 @@ ___
 - **BLEU Score (S2S) (EN > VI)**: 11.06
 - **BLEU Score (S2S) (VI > EN)**: 9.65
 ___
-
+---Limitnations and Future Improvements---
+- Limitnations:
+  - Model struggles with difficult/uncommon word, proper noun or too short sentences.
+  - The dataset lacks of many realife words.
+- Future Improvements: 
+  - Intergrating Named Entity Recognition module to solve the proper noun issue
+  - Retrain model with larger and more focused dataset would improve model's performance
+___
 **NOTE**
 You need to download "ffmpeg.exe" and place it in the "Build_model" folder.
