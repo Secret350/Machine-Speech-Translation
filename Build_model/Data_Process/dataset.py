@@ -81,8 +81,8 @@ def get_dataset():
 
     datasets = tf.data.Dataset.zip((raw_en,raw_vi))
 
-    sample_en = raw_en.take(1500000)
-    sample_vi = raw_vi.take(1500000)
+    sample_en = raw_en.take(2000000)
+    sample_vi = raw_vi.take(2000000)
 
     vectorizer_en = create_vectorizer(sample_en,VOCAB_SIZE,MAX_LENGTH,VOCAB_EN_FILE)
     vectorizer_vi = create_vectorizer(sample_vi,VOCAB_SIZE,MAX_LENGTH,VOCAB_VI_FILE)
@@ -92,26 +92,37 @@ def get_dataset():
         vi = vectorizer_vi(vi)
         return en,vi
 
-    preprocess_dataset = datasets.map(vectorize_text,num_parallel_calls=tf.data.AUTOTUNE)
-    preprocess_dataset = preprocess_dataset.cache()
-    preprocess_dataset = preprocess_dataset.shuffle(BUFFER_SIZE)
-    preprocess_dataset = preprocess_dataset.batch(BATCH_SIZE)
-    preprocess_dataset = preprocess_dataset.prefetch(tf.data.AUTOTUNE)
+    VAL_SIZE = 20000
+    val = datasets.take(VAL_SIZE)
+    train = datasets.skip(VAL_SIZE)
 
-    return preprocess_dataset, vectorizer_en, vectorizer_vi
+    train_dataset = train.map(vectorize_text,num_parallel_calls=tf.data.AUTOTUNE)
+    train_dataset = train_dataset.cache()
+    train_dataset = train_dataset.shuffle(BUFFER_SIZE)
+    train_dataset = train_dataset.batch(BATCH_SIZE)
+    train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
+
+    val_dataset = val.map(vectorize_text,num_parallel_calls=tf.data.AUTOTUNE)
+    val_dataset = val_dataset.cache()
+    val_dataset = val_dataset.batch(BATCH_SIZE)
+    val_dataset = val_dataset.prefetch(tf.data.AUTOTUNE)
+
+    return train_dataset, val_dataset, vectorizer_en, vectorizer_vi
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    ds, en_shape, vi_shape = get_dataset()
-    if ds:
-        logging.info("Data Pipline ready!")
-        vocab_en_list = en_shape.get_vocabulary()
-        en_size = get_vocab_size(VOCAB_EN_FILE)
-        vi_size = get_vocab_size(VOCAB_VI_FILE)
-        logging.info(f"Vocab Size loaded from file: EN={en_size}, VI={vi_size}")
-        for batch_en, batch_vi in ds.take(1):
-            logging.info(f"Shape batch English: {batch_en.shape}")
-            logging.info(f"Shape batch Vietnamese: {batch_vi.shape}")
+    train_ds,val_ds, en_shape, vi_shape = get_dataset()
+    if train_ds:
+        logging.info("Data Pipeline ready!")
+
+        print("\n--- Checking Train Set ---")
+        for batch_en, batch_vi in train_ds.take(1):
+            logging.info(f"Train Batch EN Shape: {batch_en.shape}")
+            logging.info(f"Train Batch VI Shape: {batch_vi.shape}")
+
+        print("\n--- Checking Validation Set ---")
+        for batch_en, batch_vi in val_ds.take(1):
+            logging.info(f"Val Batch EN Shape: {batch_en.shape}")
             vocab_en_list = en_shape.get_vocabulary()
             decoded_en = " ".join([vocab_en_list[i] for i in batch_en[0].numpy() if i != 0])
-            print(f"English example reconstructed: {decoded_en}")
+            print(f"Valid example reconstructed: {decoded_en}")

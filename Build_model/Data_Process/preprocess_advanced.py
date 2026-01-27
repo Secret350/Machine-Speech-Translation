@@ -8,11 +8,11 @@ from Build_model.config import *
 from tqdm import tqdm
 import logging
 
-VOCAB_SIZE_BPE = 32000
+VOCAB_SIZE_BPE = 40000
 MIN_LEN = 2
-MAX_LENGTH_FILTER = 100
+MAX_LENGTH_FILTER = 60
 LEN_RATIO = 1.5
-MAX_SAMPLE = 1500000
+MAX_SAMPLE = 2000000
 
 logging.basicConfig(level=logging.INFO)
 

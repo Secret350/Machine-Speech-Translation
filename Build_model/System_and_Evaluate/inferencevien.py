@@ -2,7 +2,7 @@ import traceback
 import tensorflow as tf
 from  Build_model.config import *
 from Build_model.Model_path.translation_model import Transformer
-from Build_model.Data_Process.dataset import create_vectorizer
+from Build_model.Data_Process.dataset_vi_en import create_vectorizer
 import logging
 import os
 from tokenizers import Tokenizer
@@ -10,15 +10,47 @@ import re
 import math
 
 HARD_RULES = {
-    "xin chào":"hello",
-    "chào":"hi",
-    "chào buổi sáng":"good morning",
-    "chúc ngủ ngon":"good night",
-    "cảm ơn bạn":"thank you",
-    "cảm ơn":"thanks",
-    "tạm biệt":"bye",
-    "tạm biệt nhé":"goodbye",
-    "tôi yêu bạn":"i love you"
+    "xin chào": "hello",
+    "chào bạn": "hello friend",
+    "bạn khỏe không": "how are you",
+    "tôi khỏe": "i am fine",
+    "cảm ơn": "thank you",
+    "cảm ơn nhiều": "thanks a lot",
+    "xin lỗi": "i am sorry",
+    "không sao đâu": "it is okay",
+    "không có chi": "you are welcome",
+    "tạm biệt": "goodbye",
+    "hẹn gặp lại": "see you later",
+    "chúc ngủ ngon": "good night",
+    "lâu rồi không gặp": "long time no see",
+    "tôi là sinh viên": "i am a student",
+    "tôi là sinh viên năm cuối": "i am a senior student",
+    "tôi đang đi học": "i am studying",
+    "tôi đang đi làm": "i am working",
+    "tôi sống ở hà nội": "i live in hanoi",
+    "tôi thích xem phim": "i like watching movies",
+    "tôi thích nghe nhạc": "i like listening to music",
+    "mấy giờ rồi": "what time is it",
+    "cái này bao nhiêu tiền": "how much is this",
+    "bạn đang làm gì đấy": "what are you doing",
+    "bạn đi đâu đấy": "where are you going",
+    "nhà vệ sinh ở đâu": "where is the restroom",
+    "giúp tôi với": "please help me",
+    "đợi tôi một chút": "wait for me a bit",
+    "tôi không hiểu": "i do not understand",
+    "tôi không biết": "i do not know",
+    "bạn có nói tiếng anh không": "do you speak english",
+    "tôi đói quá": "i am so hungry",
+    "tôi khát nước": "i am thirsty",
+    "tôi mệt": "i am tired",
+    "tôi vui lắm": "i am very happy",
+    "hôm nay trời đẹp": "the weather is nice today",
+    "trời đang mưa": "it is raining",
+    "nóng quá": "it is too hot",
+    "lạnh quá": "it is too cold",
+    "chán quá": "so boring",
+    "tuyệt vời": "wonderful",
+    "cố lên": "good luck"
 }
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = "2"

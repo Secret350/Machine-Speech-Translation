@@ -1,7 +1,7 @@
 import tensorflow as tf
 import random
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction, corpus_bleu
-from inference import beam_search, load_resource, clean_text
+from inference import beam_search, load_resource, clean_text,translate
 from Build_model.config import *
 from tqdm import tqdm
 import re
@@ -54,11 +54,11 @@ def calculate_bleu():
 
         ref_clean = remove_tags(raw_ref)
 
-        pred_text = beam_search(
+        pred_text = translate(
             src_clean,
             tokenizer_en, tokenizer_vi,
             vectorizer_en, vectorizer_vi,
-            idx_to_word_viet, transformer, beam_width=3
+            idx_to_word_viet, transformer
         )
 
         reference = [ref_clean.split()]
