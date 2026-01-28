@@ -35,7 +35,6 @@ target_vocab_size = len(vectorizer_en.get_vocabulary())
 with tf.device('/GPU:0' if gpus else '/CPU:0'):
     learning_rate = ComputeLR(D_MODEL)
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate, beta_1=0.9,beta_2=0.98,epsilon= 1e-9,clipnorm=1.0)
-    # optimizer = mixed_precision.LossScaleOptimizer(optimizer)
     transformer = Transformer(num_layers = NUM_LAYERS,d_model = D_MODEL,num_heads = NUM_HEADS,dff = DFF,input_vocab_size = input_vocab_size,target_vocab_size = target_vocab_size,dropout_rate = DROPOUT_RATE)
 
 #Tao va load checkpoints
@@ -89,9 +88,6 @@ def train_step(inp,tar):
     with tf.GradientTape() as tape:
         predictions, _ = transformer(inp=inp,tar=tar_inp, training=True)
         loss_value = lossfunc(tar_y,predictions)
-    #     scaled_loss = optimizer.get_scaled_loss(loss_value)
-    # scaled_gradients = tape.gradient(scaled_loss,transformer.trainable_variables)
-    # gradients = optimizer.get_unscaled_gradients(scaled_gradients)
     gradients = tape.gradient(loss_value, transformer.trainable_variables)
     optimizer.apply_gradients(zip(gradients,transformer.trainable_variables))
 

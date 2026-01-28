@@ -181,6 +181,8 @@ def translate(sentence , tokenizer_en, tokenizer_vi,vectorizer_en,vectorizer_vi,
                 if hf_id is not None:
                     result_ids_hf.append(hf_id)
     final_sentence = tokenizer_vi.decode(result_ids_hf)
+    final_sentence = re.sub(r'^[,.\s?]+', '', final_sentence)
+    final_sentence = final_sentence.strip().capitalize()
     return final_sentence
 
 def beam_search(sentence,tokenizer_en,tokenizer_vi, vectorizer_en, vectorizer_vi, idx_to_word_viet, transformer, beam_width=3, alpha=0.6):
