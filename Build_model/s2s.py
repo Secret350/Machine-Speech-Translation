@@ -31,11 +31,11 @@ import tensorflow as tf
 from Build_model.Model_path.translation_model import Transformer
 from Build_model.Data_Process.dataset import create_vectorizer
 
-Vocab_En = "./ModelCheckpoints/Vocab/vocab_en.pkl"
-Vocab_Vi = "./ModelCheckpoints/Vocab/vocab_vi.pkl"
+Vocab_En = "./Build_model/ModelCheckpoints/Vocab/vocab_en.pkl"
+Vocab_Vi = "./Build_model/ModelCheckpoints/Vocab/vocab_vi.pkl"
 
-Vocab_En_New = "./ModelCheckpoints/Vocab/vocab_new_en.pkl"
-Vocab_Vi_New = "./ModelCheckpoints/Vocab/vocab_new_vi.pkl"
+Vocab_En_New = "./Build_model/ModelCheckpoints/Vocab/vocab_new_en.pkl"
+Vocab_Vi_New = "./Build_model/ModelCheckpoints/Vocab/vocab_new_vi.pkl"
 
 os.environ["HF_TOKEN"] = "---!!!Add your HF_TOKEN!!!---"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
@@ -46,8 +46,8 @@ except ImportError:
     exit()
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"]="3"
-ckpt_en_vi = "./ModelCheckpoints/EN_VI_Checkpoint"
-ckpt_vi_en = "./ModelCheckpoints/VI_EN_Checkpoint"
+ckpt_en_vi = "./Build_model/ModelCheckpoints/EN_VI_Checkpoint"
+ckpt_vi_en = "./Build_model/ModelCheckpoints/VI_EN_Checkpoint"
 
 whisper_device = "cuda"
 
@@ -132,7 +132,7 @@ class StsSystem:
             return None
     @staticmethod
     def check_input(input_sentence):
-        print(f"Is the sentence {input_sentence} correct? Press {color('[Enter]','green')} to skip / Use arrow button to move and fix then press {color('[Enter]','green')}! ")
+        print(f"Is the sentence correct? Press {color('[Enter]','green')} to skip / Use arrow button to move and fix then press {color('[Enter]','green')}! ")
         sentence = prompt("You can edit sentence here: ", default=input_sentence)
         return sentence
     @staticmethod
