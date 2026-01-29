@@ -1,0 +1,50 @@
+BẮT ĐẦU ĐÁNH GIÁ HỆ THỐNG S2S 2 CHIỀU (End-to-End)
+
+>>> Đang đọc dữ liệu train từ config...
+
+================================================================================
+CHIỀU: ANH (Audio) -> VIỆT (Text)
+================================================================================
+INPUT (Audio)                       | WHISPER HEARD                       | OUTPUT                              | BLEU
+------------------------------------------------------------------------------------------------------------------------
+let ' s not forget the one in ...   | Let us not forget the one in t...   | chúng ta đừng quên người trong...   | 0.1477
+- mr . o ' connor is very upse...   | Mr. O'Connor is very upset.         | món s rất khó chịu                  | 0.0000
+- i ' ll think on it .              | I LL think on it.                   | tôi sẽ suy nghĩ về nó               | 0.5081
+your studies abroad should ope...   | Your studies abroad should ope...   | trường học của bạn nên mở nhiề...   | 0.0168
+she was on trial .                  | She was on trial.                   | cô ấy đang bị xét xử                | 0.2021
+over here .                         | over here                           | ở đây                               | 0.1918
+please don ' t get up .             | Please don't he get up.             | anh ấy dậy rồi                      | 0.0000
+come on in here , boy . heh .       | Come on in here, boy.  Hey.         | thôi nào in s , hey                 | 0.0685
+allow me to quote this cult ' ...   | Allow me to quote this cult's ...   | cho phép tôi trích dẫn câu cầu...   | 0.3479
+it ' s all right with me .          | It's alright with me.               | tôi không sao .                     | 0.0626
+------------------------------------------------------------------------------------------------------------------------
+✨ KẾT QUẢ CHIỀU: ANH (Audio) -> VIỆT (Text): 8.29 BLEU
+
+================================================================================
+CHIỀU: VIỆT (Audio) -> ANH (Text)
+================================================================================
+INPUT (Audio)                       | WHISPER HEARD                       | OUTPUT                              | BLEU
+------------------------------------------------------------------------------------------------------------------------
+- đừng quên người dưới hầm .        | Đừng quên người dưới hầm.           | don ' t forget the man in the ...   | 0.1251
+- ông o ' connor giận lắm .         | Ông O, cô N giận lắm.               | you ' re so angry .                 | 0.0249
+- tôi sẽ suy nghĩ .                 | Tôi sẽ suy nghĩ.                    | i ' ll think about it               | 0.3850
+việc học hành ở nước ngoài sẽ ...   | Việc học hành ở nước ngoài sẽ ...   | this is a very important schoo...   | 0.0187
+cô ấy đang thử việc .               | Cô ấy đang thử việc.                | she ' s testing her job             | 0.0408
+ở đây .                             | Ở đây.                              | here .                              | 0.1918
+xin đừng đứng lên .                 | Xin đừng đứng lên.                  | please don ' t get up               | 0.8465
+thôi nào , vào đây anh bạn .        | Thôi nào, vào đây anh bạn.          | come on , and i ' m not gonna ...   | 0.0391
+cho phép tôi trích dẫn lời cầu...   | Cho phép tôi trích dẫn lời cầu...   | allow me to about the prayer o...   | 0.0874
+chẳng có gì cả .                    | Chẳng có gì cả.                     | there ' s nothing .                 | 0.0690
+------------------------------------------------------------------------------------------------------------------------
+✨ KẾT QUẢ CHIỀU: VIỆT (Audio) -> ANH (Text): 21.50 BLEU
+
+======================================================================
+BẢNG TỔNG SẮP END-TO-END (S2S)
+======================================================================
+1. Anh -> Việt: 8.29 BLEU
+2. Việt -> Anh: 21.50 BLEU
+----------------------------------------
+TRUNG BÌNH:   14.89 BLEU
+======================================================================
+
+(Chi tiết xem tại file 'evaluation_report_2way.txt')

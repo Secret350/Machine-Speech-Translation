@@ -15,7 +15,7 @@ ___
 ___
 ---Architecture---
 - System architechture:
-  - ![System Architecture](images/system_architecture.png)
+  - ![System Architecture](images/system_architechture.png)
 - Custom transformer model architecture:
   - ![Custom Transformer Architecture](images/transformer_architecture.png)
 ___

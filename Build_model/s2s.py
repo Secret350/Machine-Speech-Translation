@@ -1,6 +1,12 @@
+import csv
 import os
 import math
+import re
+
 from config import *
+from termcolor import colored as color
+from prompt_toolkit import prompt
+from datetime import datetime
 try:
     import site
     site_packages = site.getsitepackages()[1]
@@ -124,36 +130,64 @@ class StsSystem:
         except Exception as e2:
             print(f"Load Error: Model {name}; error {e2}")
             return None
+    @staticmethod
+    def check_input(input_sentence):
+        print(f"Is the sentence correct? Press {color('[Enter]','green')} to skip / Use arrow button to move and fix then press {color('[Enter]','green')}! ")
+        sentence = prompt("You can edit sentence here: ", default=input_sentence)
+        return sentence
+    @staticmethod
+    def save_to_train(source, target, lang_pair):
+        filename = f"user_check_dataset_{lang_pair}.csv"
+        file_exists = os.path.isfile(filename)
+        with open(filename, mode="a",newline='',encoding='utf-8-sig') as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                writer.writerow(["Source","Target"])
+            writer.writerow([source,target])
+        print(f"Edit saved to train later! {filename}")
+
+    @staticmethod
+    def detect_language_by_text(text):
+        vietnamese_chars = "áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđ"
+        text_lower = text.lower()
+        for char in vietnamese_chars:
+            if char in text_lower:
+                return "vi"
+        return "en"
     def run(self):
         with self.mic as source:
             print("Preparing microphone please keep silent in 2 seconds...")
             self.recognizer.adjust_for_ambient_noise(source,duration=2)
             self.recognizer.energy_threshold = 300
-            self.recognizer.dynamic_energy_threshold = False
-            self.recognizer.pause_threshold = 0.8
+            self.recognizer.dynamic_energy_threshold = True
+            self.recognizer.pause_threshold = 1
         while True:
             try:
                 print("Listening...")
                 with self.mic as source:
-                    audio = self.recognizer.listen(source,timeout=None,phrase_time_limit=5)
+                    audio = self.recognizer.listen(source,timeout=None,phrase_time_limit=10)
                     start_time = time.time()
                     with open("temp_input.wav","wb") as f:
                         f.write(audio.get_wav_data())
-                    segments,info = self.asr_model.transcribe("temp_input.wav",beam_size=5,vad_filter=True)
+                    segments,info = self.asr_model.transcribe(
+                        "temp_input.wav",
+                        beam_size=5,
+                        vad_filter=True,
+                        vad_parameters=dict(min_silence_duration_ms=500),
+                        initial_prompt="Đây là cuộc hội thoại giao tiếp bằng Tiếng Việt và Tiếng Anh. This is a conversation in Vietnamese and English.")
                     text_seg = []
                     for seg in segments:
                         text_seg.append(seg.text)
-                    input_text = ' '.join(text_seg).strip()
+                    unchecked_text = ' '.join(text_seg).strip()
 
                     lang = info.language
-                    prob = info.language_probability
-
+                    final_lang = self.detect_language_by_text(unchecked_text)
                     t_asr = time.time()
+                    lang = final_lang
+                    input_text = self.check_input(unchecked_text)
 
                     if not input_text:
                         continue
-                    #print(f"Detected: {lang.upper()} (Conf: {prob:.2f})")
-                    t_mt = t_asr
                     t_tts = t_asr
                     processed = False
 
@@ -162,10 +196,11 @@ class StsSystem:
                         if self.model_en_vi:
                             vi_text = self.translate_greedy(input_text,self.model_en_vi)
                             # vi_text = self.beam_search(input_text, self.model_en_vi)
-                            t_mt = time.time()
                             print(f"Output: {vi_text}")
                             self.play_audio_result(vi_text,lang_code="vi")
                             t_tts = time.time()
+                            final_target= self.check_input(vi_text)
+                            self.save_to_train(input_text,final_target,"en_vi")
                             processed = True
                         else:
                             print("Model EN-VI not ready now!")
@@ -174,21 +209,18 @@ class StsSystem:
                         if self.model_vi_en:
                             en_text = self.translate_greedy(input_text, self.model_vi_en)
                             # en_text = self.beam_search(input_text, self.model_vi_en)
-                            t_mt = time.time()
                             print(f"Output: {en_text}")
                             self.play_audio_result(en_text, lang_code="en")
                             t_tts = time.time()
+                            final_target= self.check_input(en_text)
+                            self.save_to_train(input_text, final_target, "vi_en")
                             processed = True
                         else:
                             print("Model VI-EN not ready!")
                     else:
                         print(f"Language detected: {lang} is not support now!")
                     if processed:
-                        # print(f"\nTHỐNG KÊ ĐỘ TRỄ:")
-                        # print(f"- Whisper (ASR): {t_asr - start_time:.2f}s")
-                        # print(f"- Transformer (MT): {t_mt - t_asr:.2f}s")
-                        # print(f"- Edge-TTS:      {t_tts - t_mt:.2f}s")
-                        print(f"=> Total:    {t_tts - start_time:.2f}s")
+                        print(color(f"=> Total:    {t_tts - start_time:.2f}s","cyan",attrs=['bold']))
             except KeyboardInterrupt:
                 print("Goodbye!")
                 break
@@ -197,9 +229,8 @@ class StsSystem:
                 with self.mic as source: self.recognizer.adjust_for_ambient_noise(source)
     @staticmethod
     def translate_greedy(sentence, system):
-        sentence = sentence.lower().strip().replace("?","").replace(".","")
-        original_sentence = sentence.strip()
-        sentence = original_sentence.lower().strip()
+        sentence = sentence.lower().strip()
+        sentence = re.sub(r'[.?!,]+$', '', sentence)
 
         prefix_translation = ""
 
@@ -266,6 +297,8 @@ class StsSystem:
                     result_word.append(word)
         ai_trans =  " ".join(result_word)
         final_result = prefix_translation + ai_trans
+        final_result = re.sub(r'^[,.\s?]+', '', final_result).strip()
+        final_result = final_result.capitalize()
         return final_result.strip()
     @staticmethod
     def beam_search(sentence, system, beam_size=3, alpha=1.2):

@@ -6,7 +6,7 @@ VOCAB_VI_NEW_FILE = VOCAB_DIR+"vocab_new_vi.pkl"
 
 # 1. Đường dẫn dữ liệu
 RAW_DIR = "../Training_Data/raw"
-PROCESSED_DIR = "./Training_Data/processed"
+PROCESSED_DIR = "../Training_Data/processed"
 
 # 2 file dataset đã giải nén
 RAW_EN_FILE = RAW_DIR+"/OpenSubtitles.en-vi.en"
