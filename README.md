@@ -7,6 +7,7 @@ ___
 - **Automatic Speech Recognition**: FasterWhisper (Large-v3 int8)
 - **Translation**: Custom trained Transformer model (English <-> Vietnamese)
 - **Text to Speech**: Edge-TTS for natural output sound
+- **Human-in-the-loop**: User are enable to check, fix, and confirm the input and output of translation model
 - **Latency**: Optimize for acceptable latency (2-4s for 1 sentence)
 ___
 ---Demo Video---
@@ -61,8 +62,8 @@ ___
 --- Evaluation ---
 - **BLEU Score (EN > VI)**: 22.42
 - **BLEU Score (VI > EN)**: 21.76
-- **BLEU Score (S2S) (EN > VI)**: 11.06
-- **BLEU Score (S2S) (VI > EN)**: 9.65
+- **BLEU Score (S2S) (EN > VI)**: 8.29
+- **BLEU Score (S2S) (VI > EN)**: 21.5
 ___
 ---Limitnations and Future Improvements---
 - Limitnations:
