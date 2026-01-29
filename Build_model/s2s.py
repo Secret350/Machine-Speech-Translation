@@ -31,11 +31,11 @@ import tensorflow as tf
 from Build_model.Model_path.translation_model import Transformer
 from Build_model.Data_Process.dataset import create_vectorizer
 
-Vocab_En = "./ModelCheckpoints/Vocab/vocab_en.pkl"
-Vocab_Vi = "./ModelCheckpoints/Vocab/vocab_vi.pkl"
+Vocab_En = "./Build_model/ModelCheckpoints/Vocab/vocab_en.pkl"
+Vocab_Vi = "./Build_model/ModelCheckpoints/Vocab/vocab_vi.pkl"
 
-Vocab_En_New = "./ModelCheckpoints/Vocab/vocab_new_en.pkl"
-Vocab_Vi_New = "./ModelCheckpoints/Vocab/vocab_new_vi.pkl"
+Vocab_En_New = "./Build_model/ModelCheckpoints/Vocab/vocab_new_en.pkl"
+Vocab_Vi_New = "./Build_model/ModelCheckpoints/Vocab/vocab_new_vi.pkl"
 
 os.environ["HF_TOKEN"] = "---!!!Add your HF_TOKEN!!!---"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
@@ -46,8 +46,8 @@ except ImportError:
     exit()
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"]="3"
-ckpt_en_vi = "./ModelCheckpoints/EN_VI_Checkpoint"
-ckpt_vi_en = "./ModelCheckpoints/VI_EN_Checkpoint"
+ckpt_en_vi = "./Build_model/ModelCheckpoints/EN_VI_Checkpoint"
+ckpt_vi_en = "./Build_model/ModelCheckpoints/VI_EN_Checkpoint"
 
 whisper_device = "cuda"
 
@@ -235,20 +235,91 @@ class StsSystem:
         prefix_translation = ""
 
         GREETING_HACKS = {
-            "what's your name": "bạn tên là gì",
-            "what is your name": "bạn tên là gì",
+            "xin chào": "hello",
+            "chào bạn": "hello friend",
+            "bạn khỏe không": "how are you",
+            "tôi khỏe": "i am fine",
+            "cảm ơn": "thank you",
+            "cảm ơn nhiều": "thanks a lot",
+            "xin lỗi": "i am sorry",
+            "không sao đâu": "it is okay",
+            "không có chi": "you are welcome",
+            "tạm biệt": "goodbye",
+            "hẹn gặp lại": "see you later",
+            "chúc ngủ ngon": "good night",
+            "lâu rồi không gặp": "long time no see",
+            "tôi là sinh viên": "i am a student",
+            "tôi là sinh viên năm cuối": "i am a senior student",
+            "tôi đang đi học": "i am studying",
+            "tôi đang đi làm": "i am working",
+            "tôi sống ở hà nội": "i live in hanoi",
+            "tôi thích xem phim": "i like watching movies",
+            "tôi thích nghe nhạc": "i like listening to music",
+            "mấy giờ rồi": "what time is it",
+            "cái này bao nhiêu tiền": "how much is this",
+            "bạn đang làm gì đấy": "what are you doing",
+            "bạn đi đâu đấy": "where are you going",
+            "nhà vệ sinh ở đâu": "where is the restroom",
+            "giúp tôi với": "please help me",
+            "đợi tôi một chút": "wait for me a bit",
+            "tôi không hiểu": "i do not understand",
+            "tôi không biết": "i do not know",
+            "bạn có nói tiếng anh không": "do you speak english",
+            "tôi đói quá": "i am so hungry",
+            "tôi khát nước": "i am thirsty",
+            "tôi mệt": "i am tired",
+            "tôi vui lắm": "i am very happy",
+            "hôm nay trời đẹp": "the weather is nice today",
+            "trời đang mưa": "it is raining",
+            "nóng quá": "it is too hot",
+            "lạnh quá": "it is too cold",
+            "chán quá": "so boring",
+            "tuyệt vời": "wonderful",
+            "cố lên": "good luck",
             "hello": "xin chào",
-            "hi": "chào bạn",
+            "hi": "chào",
+            "how are you": "bạn khỏe không",
+            "i'm fine": "tôi khỏe",
+            "i'm good": "tôi ổn",
+            "what's up": "có chuyện gì thế",
+            "nice to meet you": "rất vui được gặp bạn",
+            "good morning": "chào buổi sáng",
+            "good night": "chúc ngủ ngon",
             "thank you": "cảm ơn",
-            "what's up": "xin chào bro",
-            "i'm good":"Tôi ổn",
-            "come on":"thôi nào",
-            "bạn tên là gì":"what's your name",
-            "xin chào":"hello",
-            "chào bạn":"hi",
-            "cảm ơn":"thank you",
-            "xin chào bro": "what's up",
-            "thôi nào":"come on"
+            "thanks": "cảm ơn",
+            "sorry": "xin lỗi",
+            "excuse me": "xin lỗi cho tôi hỏi",
+            "you're welcome": "không có chi",
+            "see you soon": "hẹn gặp lại sớm",
+            "what is your name": "bạn tên là gì",
+            "where are you from": "bạn đến từ đâu",
+            "how old are you": "bạn bao nhiêu tuổi",
+            "what time is it": "bây giờ là mấy giờ",
+            "where is the bathroom": "nhà vệ sinh ở đâu",
+            "how much is it": "cái này giá bao nhiêu",
+            "can you help me": "bạn có thể giúp tôi không",
+            "do you understand": "bạn có hiểu không",
+            "why not": "tại sao không",
+            "i am hungry": "tôi đói",
+            "i am thirsty": "tôi khát",
+            "i am tired": "tôi mệt",
+            "i am happy": "tôi vui",
+            "i don't know": "tôi không biết",
+            "i don't understand": "tôi không hiểu",
+            "i agree": "tôi đồng ý",
+            "no problem": "không vấn đề gì",
+            "just a moment": "chờ một lát",
+            "let me think": "để tôi nghĩ đã",
+            "that's great": "tuyệt quá",
+            "really": "thật á",
+            "of course": "tất nhiên rồi",
+            "how much is a ticket": "giá vé bao nhiêu",
+            "i need a ticket": "tôi cần mua một vé",
+            "stop here": "dừng ở đây",
+            "let's go": "đi thôi nào",
+            "come on": "thôi nào",
+            "leave me alone": "để tôi yên",
+            "i love you": "tôi yêu bạn"
         }
 
         for eng_word, vi_word in GREETING_HACKS.items():

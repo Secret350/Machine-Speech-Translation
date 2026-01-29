@@ -41,3 +41,6 @@ out_vi.mp3
 
 #8. Bỏ qua file Training_Data
 Build_model/Training_Data/
+
+#9. Bỏ qua file .csv
+*.csv

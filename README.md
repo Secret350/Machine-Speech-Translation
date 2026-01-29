@@ -1,7 +1,7 @@
 **Machine-Speech-Translation End-to-End (EN -> VI | VI -> EN)**
 ___
 A Speech to Speech and Text to Text Machine Translation system using **FasterWhisper** for ASR, custom **Transformer** model for translation, and **edge-tts** to generate output speech.
-![Demo Preview](images/Gif-system.gif)
+![Demo Preview](images/sys_gif.gif)
 ___
 --- Feature ---
 - **Automatic Speech Recognition**: FasterWhisper (Large-v3 int8)
@@ -11,8 +11,8 @@ ___
 - **Latency**: Optimize for acceptable latency (2-4s for 1 sentence)
 ___
 ---Demo Video---
-- In this video my Custom Transformer Model will translate a short basic conversation between a foreigner and a local:
-  - [![Video Demo](https://img.youtube.com/vi/B_nKS6wxI8k/0.jpg)](https://youtu.be/B_nKS6wxI8k)
+- In this video my Custom Transformer Model will translate a short basic conversation between a traveler and receptionist :
+  - [![Video Demo](https://img.youtube.com/vi/ut-tk39bvxM/0.jpg)](https://youtu.be/ut-tk39bvxM)
 ___
 ---Architecture---
 - System architechture:
